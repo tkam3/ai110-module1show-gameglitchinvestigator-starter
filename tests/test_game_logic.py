@@ -63,3 +63,30 @@ def test_win_score_never_drops_below_floor():
     # Edge case: winning very late should not give negative or tiny points;
     # the score is floored at 10 no matter how many attempts it took.
     assert update_score(0, "Win", attempt_number=20) == 10
+
+
+# --- Challenge 1: advanced edge cases ---
+
+def test_negative_number_is_handled():
+    # Edge case: a negative guess should parse without crashing and, since it's
+    # below any valid secret, be treated as "Too Low" rather than breaking.
+    ok, value, err = parse_guess("-7")
+    assert ok is True
+    assert value == -7
+    assert check_guess(value, 50) == "Too Low"
+
+def test_extremely_large_number_is_handled():
+    # Edge case: a huge number (far beyond the range) should parse and be
+    # reported as "Too High" instead of overflowing or erroring.
+    ok, value, err = parse_guess("99999999999999999999")
+    assert ok is True
+    assert value == 99999999999999999999
+    assert check_guess(value, 50) == "Too High"
+
+def test_whitespace_padded_number_is_handled():
+    # Edge case: extra spaces around a number (e.g. from copy/paste) should
+    # still parse to the correct int rather than being rejected.
+    ok, value, err = parse_guess("  42  ")
+    assert ok is True
+    assert value == 42
+    assert err is None

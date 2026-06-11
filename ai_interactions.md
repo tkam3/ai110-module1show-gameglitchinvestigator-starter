@@ -26,11 +26,19 @@
 
 > Document how you used AI to help generate or improve tests.
 
+**Prompt(s) used:**
+
+```
+Identify three edge-case inputs (e.g. negative numbers, decimals, extremely large
+values) that might still break my guessing game, then write a suite of pytest cases
+that verify the game handles them gracefully. Run them and show the output.
+```
+
 | Edge Case | Prompt Used | AI-Suggested Test | Did It Pass? | Your Reasoning |
 |-----------|-------------|-------------------|--------------|----------------|
-| | | | | |
-| | | | | |
-| | | | | |
+| Negative number (`-7`) | (prompt above) | `test_negative_number_is_handled` | ✅ Yes | A player could type a negative number; it should parse and be treated as "Too Low", not crash. |
+| Extremely large number (`99999999999999999999`) | (prompt above) | `test_extremely_large_number_is_handled` | ✅ Yes | A huge value far outside the range should parse and read "Too High" instead of overflowing or erroring. |
+| Whitespace-padded number (`"  42  "`) | (prompt above) | `test_whitespace_padded_number_is_handled` | ✅ Yes | Copy/paste often adds stray spaces; the input should still parse to the right number, not be rejected. |
 
 ---
 
