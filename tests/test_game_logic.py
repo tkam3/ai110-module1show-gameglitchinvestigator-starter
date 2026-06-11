@@ -3,6 +3,7 @@ from logic_utils import (
     hint_message,
     get_range_for_difficulty,
     update_score,
+    parse_guess,
 )
 
 def test_winning_guess():
@@ -38,3 +39,27 @@ def test_first_attempt_win_scores_100():
     # Bug: a first-attempt win scored 70 instead of 100.
     assert update_score(0, "Win", attempt_number=1) == 100
     assert update_score(0, "Win", attempt_number=2) == 90
+
+
+# --- Edge cases ---
+
+def test_parse_guess_rejects_empty_and_non_numeric():
+    # Edge case: blank input and garbage text should fail gracefully,
+    # not crash, and should report ok=False with an error message.
+    ok, value, err = parse_guess("")
+    assert ok is False and value is None and err == "Enter a guess."
+
+    ok, value, err = parse_guess("abc")
+    assert ok is False and value is None and err == "That is not a number."
+
+def test_parse_guess_truncates_decimals():
+    # Edge case: a decimal like "3.9" should parse to the int 3, not crash.
+    ok, value, err = parse_guess("3.9")
+    assert ok is True
+    assert value == 3
+    assert err is None
+
+def test_win_score_never_drops_below_floor():
+    # Edge case: winning very late should not give negative or tiny points;
+    # the score is floored at 10 no matter how many attempts it took.
+    assert update_score(0, "Win", attempt_number=20) == 10

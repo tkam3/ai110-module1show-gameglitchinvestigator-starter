@@ -22,33 +22,30 @@ Document at least 3 bugs you found. Add rows as needed.
 
 ## 2. How did you use AI as a teammate?
 
-- Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)? Claude Code.
-
-- **A correct suggestion:** When I said I couldn't win even after starting a new game, the AI traced it to the "New Game" handler, which reset the secret and attempts but never reset `status`, so the `if status != "playing": st.stop()` guard kept blocking my guesses. It added `st.session_state.status = "playing"` to the handler. I verified it by playing the game: I won a round, clicked "New Game," and confirmed I could submit guesses again instead of being stuck on the "You already won" message.
-
-- **An incorrect/misleading suggestion:** When I asked about scoring, the AI first told me a first-attempt win was worth 80 points. That was wrong — when we actually traced the code, the formula `100 - 10 * (attempt_number + 1)` combined with `attempts` starting at 1 produced only 70. I caught the mistake by reading the values in the "Developer Debug Info" panel and stepping through the math, and the AI corrected itself. We then fixed both off-by-one errors so a first-try win really gives 100. The lesson: even a confident AI answer about its own code can be wrong, so I verify against the running game.
+- Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
+  - Claude Code.
+- Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
+  - I told it that even after I clicked "New Game" I still couldn't make a guess. It pointed me to the New Game button and said the problem was that starting a new game didn't actually mark the game as "playing" again, so the code still thought I'd already won. That made sense to me. After the fix I just played it: won a round, started a new game, and this time it let me keep guessing instead of being stuck on the "you already won" message.
+- Give one example of an AI suggestion that was incorrect or misleading (including what the AI suggested and how you verified the result).
+  - At one point I noticed when I get it right I only get 80 points. Then I asked AI tools. Then it said the logic is wrong and fixed it. When I play again, I noticed the score is still 80, but if you guess it wrong one time, score will -5. I know AI is misleading.
 
 ---
 
 ## 3. Debugging and testing your fixes
 
-- **How I decided a bug was really fixed:** I used two checks for every fix — a pytest assertion on the pure logic in `logic_utils.py`, and a manual play-through in the live Streamlit app. A bug only counted as fixed when both agreed.
-
-- **A test I ran:** I moved the game logic into `logic_utils.py` and ran `pytest tests/`. The new `test_guess_too_high` checks that `check_guess(60, 50)` returns `"Too High"`, and `test_hint_messages_point_toward_secret` checks that "Too High" maps to "📉 Go LOWER!". I also added `test_first_attempt_win_scores_100` (`update_score(0, "Win", attempt_number=1) == 100`). All 6 tests (3 starter + 3 new) passed:
-
-  ```
-  6 passed in 0.06s
-  ```
-
-  This showed me the hint direction and the scoring formula were now correct without having to replay the game by hand each time.
-
-- **How AI helped with tests:** The AI helped me see that the starter test `assert result == "Win"` expected `check_guess` to return a plain string, while the original code returned a `(outcome, message)` tuple — so the tests could never pass as written. It suggested splitting the logic so `check_guess` returns only the outcome and a separate `hint_message` function returns the emoji text. That made the existing tests pass and let me write small, focused tests for each bug.
-
+- How did you decide whether a bug was really fixed?
+  - Mostly by going back and playing the game the same way that broke it. For the hint bug I'd guess a number I knew was too high and check it told me to go lower. For the "can't win" one I'd guess the secret on purpose and see if it actually let me win. If it behaved the way I expected, I called it fixed. 
+- Describe at least one test you ran (manual or using pytest)
+  and what it showed you about your code.
+  - I ran the project tests using pytest to verify the game logic. One test checked that the game correctly recognized a winning guess and updated the game state appropriately. The successful test results showed that my implementation behaved as expected and that the core functionality of the guessing game was working correctly.
+- Did AI help you design or understand any tests? How?
+  - Yeah but not really. I asked it to write some tests and to throw in edge cases, and it thought of stuff I wouldn't have, like typing nothing or typing letters instead of a number. I try to read through them but mostly I just follow it blindly.
 ---
 
 ## 4. What did you learn about Streamlit and state?
 
 - How would you explain Streamlit "reruns" and session state to a friend who has never used Streamlit?
+  - Every time you click a button or type something, Streamlit just runs the whole file again from the top, kind of like refreshing the page. So a normal variable gets wiped and forgets what it was. Session state is the little box where you keep the stuff you want to remember between those reruns, like the secret number, the score, and whether you already won. A couple of the bugs were basically the game forgetting or not resetting things because they weren't handled right in session state.
 
 ---
 

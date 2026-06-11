@@ -26,18 +26,35 @@ It wrote the code, ran away, and now the game is unplayable.
 ## 📝 Document Your Experience
 
 - [ ] Describe the game's purpose.
+  - It's a number guessing game built with Streamlit. The app picks a secret number in a range based on the difficulty (Easy 1–20, Normal 1–100, Hard 1–200), and you try to guess it within a limited number of attempts. After each guess it tells you whether to go higher or lower and updates your score, and you can start a new game at any time.
 - [ ] Detail which bugs you found.
+  - The higher/lower hints were backwards — a guess that was too high told you to go higher.
+  - You couldn't win on even-numbered attempts, because the secret was being compared as text instead of a number.
+  - "Hard" was actually easier than "Normal" — its range was only 1–50.
+  - After winning, clicking "New Game" didn't really restart the game, so it wouldn't accept new guesses.
+  - The prompt always said "between 1 and 100" no matter the difficulty.
+  - Winning on the first try only gave 70 points instead of 100.
+  - Submitting a guess took two clicks instead of one.
 - [ ] Explain what fixes you applied.
+  - Moved the core logic (range, parsing, win check, scoring) into `logic_utils.py` and imported it into `app.py`.
+  - Swapped the hint messages so "too high" now says go lower and vice versa.
+  - Always compare the guess and secret as numbers so a correct guess always wins.
+  - Widened Hard's range to 1–200 and gave it 10 attempts so it's genuinely harder.
+  - Made "New Game" reset the game state (status, score, attempts, history) so you can play again.
+  - Showed the actual difficulty range in the prompt instead of a hardcoded "1 and 100".
+  - Fixed the off-by-one in the scoring so a first-try win is worth 100.
+  - Wrapped the guess input and submit button in a Streamlit form so a single click (or Enter) submits.
+  - Added pytest cases, including edge cases (empty input, letters, decimals), and confirmed they all pass.
 
 ## 📸 Demo Walkthrough
 
 Describe your fixed game in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. User enters a guess of 1
+2. Game returns "Go higher"
+3. User enters a guess of 100 → "Go lower"
+4. Score updates correctly after each guess
+5. Game ends after the correct guess
 
 **Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
 
